@@ -10,34 +10,53 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User as UserModel } from '@prisma/client';
 
-@Controller('users')
+@Controller('api/users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<CreateUserDto> {
-    return this.usersService.createUser(createUserDto);
+    try {
+      return this.usersService.createUser(createUserDto);
+    } catch (error) {
+      return error.message;
+    }
   }
 
   @Get()
   findAll() {
-    return this.usersService.findAllUsers({ orderBy: { id: 'asc' } });
+    try {
+      return this.usersService.findAllUsers({ orderBy: { id: 'asc' } });
+    } catch (error) {
+      return error.message;
+    }
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    try {
+      return this.usersService.findOne(+id);
+    } catch (error) {
+      return error.message;
+    }
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.updateUser(+id, updateUserDto);
+    try {
+      return this.usersService.updateUser(+id, updateUserDto);
+    } catch (error) {
+      return error.message;
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: number) {
-    return this.usersService.deleteUser(id);
+    try {
+      return this.usersService.deleteUser(id);
+    } catch (error) {
+      return error.message;
+    }
   }
 }
