@@ -54,13 +54,6 @@ export class UsersService {
 
   findOne(id: number): Promise<User | null> {
     try {
-      const user = this.prisma.user.findUnique({
-        where: { id },
-      });
-
-      if (!user) {
-        return null;
-      }
       return this.prisma.user.findUnique({
         where: { id },
       });

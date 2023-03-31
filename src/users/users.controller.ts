@@ -12,26 +12,21 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CustomException, AllExceptionsFilter } from '../Exceptions';
+import { CustomException } from '../Exceptions';
 
 @Controller('api/users')
-// @UseFilters(AllExceptionsFilter)
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto): Promise<CreateUserDto> {
-    const checkUser = this.usersService.findUnique({
-      where: { email: createUserDto.email },
-    });
-
-    if (checkUser) {
-      throw new CustomException('User already exists', HttpStatus.BAD_REQUEST);
-    }
     try {
       return this.usersService.createUser(createUserDto);
     } catch (error) {
-      throw new CustomException(error.message, HttpStatus.BAD_REQUEST);
+      throw new CustomException(
+        'Check signup parameters and try again',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -45,9 +40,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     const checkUser = this.usersService.findUnique({
-      where: { id: +id },
+      where: { id },
     });
 
     if (!checkUser) {
@@ -61,7 +56,15 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    const checkUser = this.usersService.findUnique({
+      where: { id },
+    });
+
+    if (!checkUser) {
+      throw new CustomException('User does not exist', HttpStatus.NOT_FOUND);
+    }
+
     try {
       return this.usersService.updateUser(+id, updateUserDto);
     } catch (error) {
@@ -70,9 +73,14 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  async remove(@Param('id') id: number) {
     try {
-      return this.usersService.deleteUser(id);
+      const response = await this.usersService.deleteUser(+id);
+      if (response) {
+        return 'User deleted successfully';
+      }
+
+      throw new CustomException('User does not exist', HttpStatus.NOT_FOUND);
     } catch (error) {
       return error.message;
     }
