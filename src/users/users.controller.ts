@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  UseFilters,
   HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
